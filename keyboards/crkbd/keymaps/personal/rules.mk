@@ -1,0 +1,2 @@
+CONVERT_TO = blok
+RGBLIGHT_ENABLE = yes

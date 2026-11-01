@@ -1,0 +1,16 @@
+TRI_LAYER_ENABLE = yes
+RGB_MATRIX_CUSTOM_USER = yes
+
+SOFLE_ENABLE_VIAL ?= no
+ifeq ($(SOFLE_ENABLE_VIAL),yes)
+VIA_ENABLE = yes
+VIAL_ENABLE = yes
+ENCODER_MAP_ENABLE = yes
+OPT_DEFS += -DSOFLE_ENABLE_VIAL
+endif
+
+# Set to yes to include the OLED Game of Life and Snake controls.
+SOFLE_OLED_GAMES ?= no
+ifeq ($(SOFLE_OLED_GAMES),yes)
+OPT_DEFS += -DSOFLE_OLED_GAMES
+endif
