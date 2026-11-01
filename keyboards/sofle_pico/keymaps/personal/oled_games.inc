@@ -1,7 +1,7 @@
 #define SOFLE_GAME_CELL_SIZE 4
 #define SOFLE_GAME_HEADER_HEIGHT 8
-#define SOFLE_GAME_WIDTH (OLED_DISPLAY_WIDTH / SOFLE_GAME_CELL_SIZE)
-#define SOFLE_GAME_HEIGHT ((OLED_DISPLAY_HEIGHT - SOFLE_GAME_HEADER_HEIGHT) / SOFLE_GAME_CELL_SIZE)
+#define SOFLE_GAME_WIDTH (OLED_DISPLAY_HEIGHT / SOFLE_GAME_CELL_SIZE)
+#define SOFLE_GAME_HEIGHT ((OLED_DISPLAY_WIDTH - SOFLE_GAME_HEADER_HEIGHT) / SOFLE_GAME_CELL_SIZE)
 #define SOFLE_SNAKE_CAPACITY (SOFLE_GAME_WIDTH * SOFLE_GAME_HEIGHT)
 #define SOFLE_GAME_FRAME_MS 100
 #define SOFLE_LIFE_STEP_MS 220
@@ -181,8 +181,8 @@ static void sofle_oled_snake_step(void) {
 }
 
 static void sofle_oled_game_draw_border(void) {
-    uint8_t right = SOFLE_GAME_WIDTH * SOFLE_GAME_CELL_SIZE - 1;
-    uint8_t bottom = OLED_DISPLAY_HEIGHT - 1;
+    uint8_t right = OLED_DISPLAY_HEIGHT - 1;
+    uint8_t bottom = OLED_DISPLAY_WIDTH - 1;
 
     for (uint8_t x = 0; x <= right; x++) {
         oled_write_pixel(x, SOFLE_GAME_HEADER_HEIGHT, true);
@@ -197,7 +197,7 @@ static void sofle_oled_game_draw_border(void) {
 static void sofle_oled_life_render(void) {
     oled_clear();
     oled_set_cursor(0, 0);
-    oled_write_P(PSTR("GAME OF LIFE"), false);
+    oled_write_P(PSTR("LIFE"), false);
 
     for (uint8_t y = 0; y < SOFLE_GAME_HEIGHT; y++) {
         for (uint8_t x = 0; x < SOFLE_GAME_WIDTH; x++) {

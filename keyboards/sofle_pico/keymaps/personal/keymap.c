@@ -10,6 +10,10 @@ enum sofle_layers {
     _ADJUST,
 };
 
+#if defined(RGB_MATRIX_KEYREACTIVE_ENABLED)
+void sofle_orange_reactive_record_keypress(uint8_t row, uint8_t col);
+#endif
+
 #ifdef SOFLE_OLED_GAMES
 enum sofle_oled_keycodes {
     OLED_GAME_LIFE = SAFE_RANGE,
@@ -68,8 +72,15 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 };
 #endif
 
-#ifdef SOFLE_OLED_GAMES
+#if defined(SOFLE_OLED_GAMES) || defined(RGB_MATRIX_KEYREACTIVE_ENABLED)
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+#if defined(RGB_MATRIX_KEYREACTIVE_ENABLED)
+    if (record->event.pressed) {
+        sofle_orange_reactive_record_keypress(record->event.key.row, record->event.key.col);
+    }
+#endif
+
+#ifdef SOFLE_OLED_GAMES
     switch (keycode) {
         case OLED_GAME_LIFE:
             if (record->event.pressed) {
@@ -98,10 +109,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             break;
     }
+#endif
 
     return true;
 }
+#endif
 
+#ifdef SOFLE_OLED_GAMES
 bool oled_task_user(void) {
     if (is_keyboard_master() && sofle_oled_game_active()) {
         sofle_oled_game_task();

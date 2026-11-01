@@ -31,13 +31,12 @@ fade speed.
 
 ## Sofle Pico OLED games
 
-The Game of Life and Snake are optional in the `personal` keymap. Enable them
-by changing `SOFLE_OLED_GAMES ?= no` to `SOFLE_OLED_GAMES = yes` in
-`keyboards/sofle_pico/keymaps/personal/rules.mk`, then build as usual. For a
-one-off build, pass `-e SOFLE_OLED_GAMES=yes` to `qmk compile`.
+The Game of Life and Snake are included by default in the `personal` keymap.
+To exclude them from a one-off build, pass `-e SOFLE_OLED_GAMES=no` to
+`qmk compile`.
 
 ```make
-SOFLE_OLED_GAMES = yes
+SOFLE_OLED_GAMES = no
 ```
 
 Hold the Lower and Raise thumb keys together to enter Adjust. On its second
@@ -46,8 +45,10 @@ start Snake, or exit the current game:
 
 - While Snake is running, use Raise plus the arrow keys to steer.
 
-Only the master half displays the active game; the other OLED keeps the Sofle
-logo. The game code is included only when `SOFLE_OLED_GAMES` is enabled.
+The game is drawn on the USB master half's OLED. To have it appear on the
+right-hand OLED, connect USB to the right half so it becomes master. The OLED
+is rotated vertically on Sofle Pico, so the game board is laid out in portrait
+orientation. Set `SOFLE_OLED_GAMES=no` to exclude the game code.
 
 The implementations use Conway's neighbor-counting rules and a bounded,
 grid-based Snake game. The Game of Life was reviewed against the
@@ -76,5 +77,5 @@ The QMK CLI's `user.overlay_dir` must point to this userspace so the external
 `personal` keymap is visible. `SOFLE_ENABLE_VIAL=yes` enables VIA/Vial, the
 secure unlock combo, and encoder support for this build only. Its Vial
 keyboard definition is in `keyboards/sofle_pico/keymaps/personal/vial.json`.
-The command above also opts into the OLED games; omit
-`-e SOFLE_OLED_GAMES=yes` if you want a Vial build without them.
+The command above includes the OLED games by default; pass
+`-e SOFLE_OLED_GAMES=no` for a Vial build without them.

@@ -9,8 +9,8 @@ ENCODER_MAP_ENABLE = yes
 OPT_DEFS += -DSOFLE_ENABLE_VIAL
 endif
 
-# Set to yes to include the OLED Game of Life and Snake controls.
-SOFLE_OLED_GAMES ?= no
+# Set to no to exclude the OLED Game of Life and Snake controls.
+SOFLE_OLED_GAMES ?= yes
 ifeq ($(SOFLE_OLED_GAMES),yes)
 OPT_DEFS += -DSOFLE_OLED_GAMES
 endif
