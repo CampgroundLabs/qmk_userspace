@@ -44,11 +44,19 @@ row, use the three keys immediately to the right of `QK_BOOT` to start Life,
 start Snake, or exit the current game:
 
 - While Snake is running, use Raise plus the arrow keys to steer.
+- Use the game-exit key in Adjust to return to the keymap screen.
+- The compiled keymap view is shown on both OLEDs by default. In Adjust, the key
+  next to `CG_TOGG` toggles it off or back on. Each half displays its own keys
+  for the active layer, with each matrix row on its own line and a gap between
+  the two groups of three keys. Symbols use single characters and named keys
+  use compact labels; transparent keys show the inherited key from a lower
+  layer.
 
-The game is drawn on the USB master half's OLED. To have it appear on the
-right-hand OLED, connect USB to the right half so it becomes master. The OLED
-is rotated vertically on Sofle Pico, so the game board is laid out in portrait
-orientation. Set `SOFLE_OLED_GAMES=no` to exclude the game code.
+Games are drawn on the USB master half's OLED. The keymap screen is drawn
+independently on both halves. It shows the keymap compiled into firmware and
+does not reflect later edits saved dynamically in Vial. The OLED is rotated
+vertically on Sofle Pico, so the game board is laid out in portrait orientation.
+Set `SOFLE_OLED_GAMES=no` or `SOFLE_OLED_KEYMAP=no` to exclude either feature.
 
 The implementations use Conway's neighbor-counting rules and a bounded,
 grid-based Snake game. The Game of Life was reviewed against the

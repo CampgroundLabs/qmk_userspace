@@ -24,6 +24,15 @@ enum sofle_oled_keycodes {
 #include "oled_games.inc"
 #endif
 
+#ifdef SOFLE_OLED_KEYMAP
+#ifdef SOFLE_OLED_GAMES
+enum { OLED_KEYMAP_TOGGLE = OLED_GAME_EXIT + 1 };
+#else
+enum { OLED_KEYMAP_TOGGLE = SAFE_RANGE };
+#endif
+#include "oled_keymap.inc"
+#endif
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // clang-format off
         [_QWERTY] = LAYOUT(
@@ -55,7 +64,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 #else
                  XXXXXXX, XXXXXXX, XXXXXXX,
 #endif
-                                            CG_TOGG, XXXXXXX,                       RM_NEXT, RM_PREV, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+                                            CG_TOGG,
+#ifdef SOFLE_OLED_KEYMAP
+                                                     OLED_KEYMAP_TOGGLE,
+#else
+                                                     XXXXXXX,
+#endif
+                                                                                     RM_NEXT, RM_PREV, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
         XXXXXXX, XXXXXXX, CG_TOGG, XXXXXXX, XXXXXXX, XXXXXXX,                       XXXXXXX, KC_VOLD, KC_MUTE, KC_VOLU, XXXXXXX, XXXXXXX,
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,     XXXXXXX, XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, XXXXXXX,
                           _______, _______, _______, _______, _______,     _______, _______, _______, _______, _______
@@ -72,7 +87,7 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 };
 #endif
 
-#if defined(SOFLE_OLED_GAMES) || defined(RGB_MATRIX_KEYREACTIVE_ENABLED)
+#if defined(SOFLE_OLED_GAMES) || defined(SOFLE_OLED_KEYMAP) || defined(RGB_MATRIX_KEYREACTIVE_ENABLED)
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #if defined(RGB_MATRIX_KEYREACTIVE_ENABLED)
     if (record->event.pressed) {
@@ -84,17 +99,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case OLED_GAME_LIFE:
             if (record->event.pressed) {
+#ifdef SOFLE_OLED_KEYMAP
+                sofle_oled_keymap_set_active(false);
+#endif
                 sofle_oled_game_start(SOFLE_OLED_GAME_LIFE);
             }
             return false;
         case OLED_GAME_SNAKE:
             if (record->event.pressed) {
+#ifdef SOFLE_OLED_KEYMAP
+                sofle_oled_keymap_set_active(false);
+#endif
                 sofle_oled_game_start(SOFLE_OLED_GAME_SNAKE);
             }
             return false;
         case OLED_GAME_EXIT:
             if (record->event.pressed) {
                 sofle_oled_game_stop();
+#ifdef SOFLE_OLED_KEYMAP
+                sofle_oled_keymap_set_active(true);
+#endif
             }
             return false;
         case KC_UP:
@@ -111,16 +135,39 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 #endif
 
+#ifdef SOFLE_OLED_KEYMAP
+    if (keycode == OLED_KEYMAP_TOGGLE) {
+        if (record->event.pressed) {
+            sofle_oled_keymap_toggle();
+        }
+        return false;
+    }
+#endif
+
     return true;
 }
 #endif
 
-#ifdef SOFLE_OLED_GAMES
+#if defined(SOFLE_OLED_GAMES) || defined(SOFLE_OLED_KEYMAP)
 bool oled_task_user(void) {
+#ifdef SOFLE_OLED_GAMES
     if (is_keyboard_master() && sofle_oled_game_active()) {
         sofle_oled_game_task();
+#ifdef SOFLE_OLED_KEYMAP
+        if (sofle_oled_keymap_is_active()) {
+            sofle_oled_keymap_render();
+        }
+#endif
         return false;
     }
+#endif
+
+#ifdef SOFLE_OLED_KEYMAP
+    if (sofle_oled_keymap_is_active()) {
+        sofle_oled_keymap_render();
+        return false;
+    }
+#endif
 
     return true;
 }

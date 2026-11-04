@@ -1,5 +1,6 @@
 TRI_LAYER_ENABLE = yes
 RGB_MATRIX_CUSTOM_USER = yes
+KEYCODE_STRING_ENABLE = yes
 
 SOFLE_ENABLE_VIAL ?= no
 ifeq ($(SOFLE_ENABLE_VIAL),yes)
@@ -13,4 +14,10 @@ endif
 SOFLE_OLED_GAMES ?= yes
 ifeq ($(SOFLE_OLED_GAMES),yes)
 OPT_DEFS += -DSOFLE_OLED_GAMES
+endif
+
+# Set to no to exclude the compiled keymap OLED screen.
+SOFLE_OLED_KEYMAP ?= yes
+ifeq ($(SOFLE_OLED_KEYMAP),yes)
+OPT_DEFS += -DSOFLE_OLED_KEYMAP
 endif
