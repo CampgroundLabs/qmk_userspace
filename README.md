@@ -47,10 +47,35 @@ start Snake, or exit the current game:
 - Use the game-exit key in Adjust to return to the keymap screen.
 - The compiled keymap view is shown on both OLEDs by default. In Adjust, the key
   next to `CG_TOGG` toggles it off or back on. Each half displays its own keys
-  for the active layer, with each matrix row on its own line and a gap between
-  the two groups of three keys. Symbols use single characters and named keys
-  use compact labels; transparent keys show the inherited key from a lower
-  layer.
+  for the active layer, with the letter columns toward the keyboard center and
+  the outer column at the outside edge. Each matrix row has its own line; the
+  outer key has a fixed three-character slot so the letter/digit columns line
+  up across rows. There is a blank row below the title and above the thumb row.
+  The thumb keys follow their physical stagger: `Os`, `Ctl`, and `Ent` on the
+  first line, with `Alt` and `L1` between them on the second. The other half
+  mirrors this arrangement. Special keys use mixed-case labels such
+  as `Esc`, `Tab`, `Al`, `Ct`, `Sft`, and `Bsp`. The title shows `Layer 0`
+  through `Layer 3`. Thumb layer keys show `L1`/`L2` on the base and Adjust
+  layers, and both show `L4` on Lower or Raise. While Shift is held, letters
+  display uppercase and shifted punctuation is shown (for example `1` becomes
+  `!`). Transparent keys show the inherited key from a lower layer.
+
+The build also generates previews of each OLED's compiled keymap automatically
+whenever `SOFLE_OLED_KEYMAP=yes` (the default). The 16 PNGs are written to
+`.build/oled-preview/` in this userspace: one image per layer, half, and Shift
+state. For example, `layer-0-left.png` and `layer-0-right-shift.png` show the
+base layer. The images use the actual QMK font and portrait 64x128 display
+dimensions, so they can be opened in an image viewer before flashing.
+
+To preview custom OLED text without flashing:
+
+```sh
+python3 tools/oled_text_preview.py --text 'L Layer 0\n\n`   12345\nEsc qwert\nTab asdfg\nSft zxcvb\n\nOs Ctl Ent\n  Alt L1' --output /tmp/sofle-oled.png
+```
+
+The previewer also accepts `--text-file` for iterative layout work. It uses
+`qmk_firmware/drivers/oled/glcdfont.c`, shows the 10x16 character grid, and
+wraps text the way QMK does.
 
 Games are drawn on the USB master half's OLED. The keymap screen is drawn
 independently on both halves. It shows the keymap compiled into firmware and

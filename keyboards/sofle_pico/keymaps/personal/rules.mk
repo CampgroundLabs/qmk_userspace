@@ -20,4 +20,13 @@ endif
 SOFLE_OLED_KEYMAP ?= yes
 ifeq ($(SOFLE_OLED_KEYMAP),yes)
 OPT_DEFS += -DSOFLE_OLED_KEYMAP
+
+.PHONY: oled-keymap-previews
+all: oled-keymap-previews
+oled-keymap-previews: $(INTERMEDIATE_OUTPUT)/src/default_keyboard.h $(KEYMAP_C)
+	python3 "$(QMK_USERSPACE)/tools/oled_text_preview.py" \
+		--keymap "$(KEYMAP_C)" \
+		--layout-header "$(INTERMEDIATE_OUTPUT)/src/default_keyboard.h" \
+		--output-dir "$(QMK_USERSPACE)/.build/oled-preview" \
+		--games "$(SOFLE_OLED_GAMES)"
 endif

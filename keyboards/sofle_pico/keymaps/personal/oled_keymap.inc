@@ -8,30 +8,59 @@ static void sofle_oled_keymap_sync(uint8_t initiator2target_buffer_size, const v
     }
 }
 
-static const char *sofle_oled_layer_name(uint8_t layer) {
-    switch (layer) {
-        case _QWERTY:
-            return "QWERTY";
-        case _LOWER:
-            return "LOWER";
-        case _RAISE:
-            return "RAISE";
-        case _ADJUST:
-            return "ADJUST";
+static void sofle_oled_keymap_write_outer_label(uint16_t keycode, bool shifted) {
+    char label[4] = {' ', ' ', ' ', '\0'};
+
+    switch (keycode) {
+        case KC_ESC:
+            memcpy(label, "Esc", 3);
+            break;
+        case KC_TAB:
+            memcpy(label, "Tab", 3);
+            break;
+        case KC_BSPC:
+            memcpy(label, "Bsp", 3);
+            break;
+        case KC_DEL:
+            memcpy(label, "Del", 3);
+            break;
+        case KC_LSFT:
+        case KC_RSFT:
+            memcpy(label, "Sft", 3);
+            break;
+        case KC_QUOT:
+            label[1] = shifted ? '"' : '\'';
+            break;
+        case KC_GRV:
+            label[1] = shifted ? '~' : '`';
+            break;
         default:
-            return "LAYER";
+            label[1] = '?';
+            break;
     }
+
+    oled_write(label, false);
 }
 
-static void sofle_oled_keymap_write_label(uint16_t keycode) {
+static void sofle_oled_keymap_write_label(uint16_t keycode, bool expanded, bool full_label, uint8_t layer, bool shifted) {
+    if (keycode == TL_LOWR || keycode == TL_UPPR) {
+        oled_write_char('L', false);
+        oled_write_char(layer == _LOWER || layer == _RAISE ? '4' : keycode == TL_LOWR ? '2' : '3', false);
+        return;
+    }
+
     char label[4] = {' ', ' ', ' ', '\0'};
 
     if (keycode >= KC_A && keycode <= KC_Z) {
-        label[1] = 'A' + (keycode - KC_A);
+        label[1] = (shifted ? 'A' : 'a') + (keycode - KC_A);
     } else if (keycode >= KC_1 && keycode <= KC_0) {
         label[1] = '1' + (keycode - KC_1);
         if (keycode == KC_0) {
             label[1] = '0';
+        }
+        if (shifted) {
+            static const char shifted_digits[] = "!@#$%^&*()";
+            label[1] = shifted_digits[keycode == KC_0 ? 9 : keycode - KC_1];
         }
     } else {
         switch (keycode) {
@@ -281,6 +310,50 @@ static void sofle_oled_keymap_write_label(uint16_t keycode) {
         }
     }
 
+    if (shifted) {
+        char shifted_symbol = '\0';
+        switch (keycode) {
+            case KC_MINS:
+                shifted_symbol = '_';
+                break;
+            case KC_EQL:
+                shifted_symbol = '+';
+                break;
+            case KC_LBRC:
+                shifted_symbol = '{';
+                break;
+            case KC_RBRC:
+                shifted_symbol = '}';
+                break;
+            case KC_BSLS:
+                shifted_symbol = '|';
+                break;
+            case KC_SCLN:
+                shifted_symbol = ':';
+                break;
+            case KC_QUOT:
+                shifted_symbol = '"';
+                break;
+            case KC_COMM:
+                shifted_symbol = '<';
+                break;
+            case KC_DOT:
+                shifted_symbol = '>';
+                break;
+            case KC_SLSH:
+                shifted_symbol = '?';
+                break;
+            case KC_GRV:
+                shifted_symbol = '~';
+                break;
+        }
+        if (shifted_symbol != '\0') {
+            label[0] = ' ';
+            label[1] = shifted_symbol;
+            label[2] = ' ';
+        }
+    }
+
     char compact_label = label[0] != ' ' ? label[0] : label[1];
     switch (keycode) {
         case KC_SPC:
@@ -306,30 +379,185 @@ static void sofle_oled_keymap_write_label(uint16_t keycode) {
             break;
     }
 
+    if (full_label) {
+        char first = compact_label;
+        char second = label[0] != ' ' ? label[1] : label[2];
+        switch (keycode) {
+            case KC_LCTL:
+            case KC_RCTL:
+                first = 'C';
+                second = 't';
+                break;
+            case KC_LALT:
+            case KC_RALT:
+                first = 'A';
+                second = 'l';
+                break;
+            case KC_LGUI:
+            case KC_RGUI:
+                first = 'G';
+                second = 'u';
+                break;
+            case KC_ENT:
+                first = 'E';
+                second = 'n';
+                break;
+            case KC_SPC:
+                first = 'S';
+                second = 'p';
+                break;
+            case KC_BSPC:
+                first = 'B';
+                second = 's';
+                break;
+            case KC_TAB:
+                first = 'T';
+                second = 'b';
+                break;
+            case KC_ESC:
+                first = 'E';
+                second = 's';
+                break;
+            case KC_LSFT:
+            case KC_RSFT:
+                first = 'S';
+                second = 'f';
+                break;
+            case TL_LOWR:
+                first = 'L';
+                second = layer == _LOWER || layer == _RAISE ? '4' : '2';
+                break;
+            case TL_UPPR:
+                first = 'L';
+                second = layer == _LOWER || layer == _RAISE ? '4' : '3';
+                break;
+        }
+        oled_write_char(first, false);
+        oled_write_char(second, false);
+        return;
+    }
+
+    if (expanded) {
+        switch (keycode) {
+            case KC_ESC:
+                oled_write("Esc", false);
+                return;
+            case KC_TAB:
+                oled_write("Tab", false);
+                return;
+            case KC_BSPC:
+                oled_write("Bsp", false);
+                return;
+            case KC_LSFT:
+            case KC_RSFT:
+                oled_write("Sft", false);
+                return;
+        }
+    }
+
     oled_write_char(compact_label, false);
+}
+
+static void sofle_oled_keymap_write_thumb_label(uint16_t keycode, uint8_t layer) {
+    switch (keycode) {
+        case KC_LGUI:
+        case KC_RGUI:
+            oled_write("Os", false);
+            break;
+        case KC_LALT:
+        case KC_RALT:
+            oled_write("Alt", false);
+            break;
+        case KC_LCTL:
+        case KC_RCTL:
+            oled_write("Ctl", false);
+            break;
+        case KC_ENT:
+            oled_write("Ent", false);
+            break;
+        case KC_SPC:
+            oled_write("Spc", false);
+            break;
+        case KC_BSPC:
+            oled_write("Bsp", false);
+            break;
+        case TL_LOWR:
+            oled_write(layer == _LOWER || layer == _RAISE ? "L4" : "L1", false);
+            break;
+        case TL_UPPR:
+            oled_write(layer == _LOWER || layer == _RAISE ? "L4" : "L2", false);
+            break;
+        default:
+            oled_write("???", false);
+            break;
+    }
+}
+
+static uint16_t sofle_oled_keymap_keycode(uint8_t row, uint8_t col) {
+    keypos_t key = {.row = row, .col = col};
+    uint8_t effective_layer = layer_switch_get_layer(key);
+    return keymap_key_to_keycode(effective_layer, key);
+}
+
+static void sofle_oled_keymap_render_thumb_row(uint8_t row_offset, uint8_t row, bool is_left, uint8_t layer, uint8_t line) {
+    static const uint8_t left_label_positions[] = {0, 3, 7};
+    static const uint8_t right_label_positions[] = {0, 4, 8};
+    static const uint8_t staggered_positions[] = {2, 6};
+
+    for (uint8_t index = 0; index < 3; index++) {
+        uint8_t col = is_left ? index * 2 : MATRIX_COLS - 2 - index * 2;
+        oled_set_cursor(is_left ? left_label_positions[index] : right_label_positions[index], line);
+        sofle_oled_keymap_write_thumb_label(sofle_oled_keymap_keycode(row_offset + row, col), layer);
+    }
+
+    for (uint8_t index = 0; index < 2; index++) {
+        uint8_t col = is_left ? index * 2 + 1 : MATRIX_COLS - 3 - index * 2;
+        oled_set_cursor(staggered_positions[index], line + 1);
+        sofle_oled_keymap_write_thumb_label(sofle_oled_keymap_keycode(row_offset + row, col), layer);
+    }
 }
 
 static void sofle_oled_keymap_render(void) {
     uint8_t layer = get_highest_layer(layer_state);
     uint8_t row_offset = is_keyboard_left() ? 0 : MATRIX_ROWS / 2;
+    bool is_left = is_keyboard_left();
+    bool shifted = (get_mods() & MOD_MASK_SHIFT) != 0;
     uint8_t line = 0;
 
     oled_on();
     oled_clear();
     oled_set_cursor(0, line++);
-    oled_write(is_keyboard_left() ? "L " : "R ", false);
-    oled_write(sofle_oled_layer_name(layer), false);
+    oled_write(is_left ? "L Layer " : "R Layer ", false);
+    oled_write_char(layer < 10 ? '0' + layer : '?', false);
+    line++;
 
     for (uint8_t row = 0; row < MATRIX_ROWS / 2; row++) {
+        if (row == MATRIX_ROWS / 2 - 1) {
+            line++;
+            sofle_oled_keymap_render_thumb_row(row_offset, row, is_left, layer, line);
+            continue;
+        }
         oled_set_cursor(0, line++);
-        for (uint8_t col = 0; col < MATRIX_COLS; col++) {
-            if (col == MATRIX_COLS / 2) {
-                oled_write_char(' ', false);
-            }
-            keypos_t key = {.row = row_offset + row, .col = col};
+
+        keypos_t key = {.row = row_offset + row, .col = 0};
+        if (is_left) {
             uint8_t effective_layer = layer_switch_get_layer(key);
-            uint16_t keycode = keymap_key_to_keycode(effective_layer, key);
-            sofle_oled_keymap_write_label(keycode);
+            sofle_oled_keymap_write_outer_label(keymap_key_to_keycode(effective_layer, key), shifted);
+            oled_write_char(' ', false);
+            for (uint8_t col = 1; col < MATRIX_COLS; col++) {
+                key.col = col;
+                effective_layer = layer_switch_get_layer(key);
+                sofle_oled_keymap_write_label(keymap_key_to_keycode(effective_layer, key), false, false, layer, shifted);
+            }
+        } else {
+            for (uint8_t col = MATRIX_COLS - 1; col > 0; col--) {
+                key.col = col;
+                uint8_t effective_layer = layer_switch_get_layer(key);
+                sofle_oled_keymap_write_label(keymap_key_to_keycode(effective_layer, key), false, false, layer, shifted);
+            }
+            oled_write_char(' ', false);
+            uint8_t effective_layer = layer_switch_get_layer(key);
+            sofle_oled_keymap_write_outer_label(keymap_key_to_keycode(effective_layer, key), shifted);
         }
     }
 }
