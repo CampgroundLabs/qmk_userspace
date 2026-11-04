@@ -3,8 +3,8 @@
 Repository: https://github.com/CampgroundLabs/qmk_userspace
 
 This external userspace contains your `personal` keymaps for Sofle Pico and
-Corne. The Sofle Pico keymap has a dim-white idle RGB Matrix and an orange
-keypress fade.
+Corne, plus an alternate `personal_symbols` Sofle Pico keymap. The Sofle Pico
+keymaps have a dim-white idle RGB Matrix and an orange keypress fade.
 
 Configure QMK to use this userspace:
 
@@ -18,6 +18,9 @@ Then build and flash with:
 qmk compile -kb sofle_pico -km personal
 qmk flash -kb sofle_pico -km personal
 
+qmk compile -kb sofle_pico -km personal_symbols
+qmk flash -kb sofle_pico -km personal_symbols
+
 qmk compile -kb crkbd -km personal
 qmk flash -kb crkbd -km personal
 
@@ -28,6 +31,27 @@ qmk flash -kb crkbd -km jcampo_miryoku
 The Sofle Pico keymap gets RGB defaults from its `config.h`. On its Adjust
 layer, `RM_VALU`/`RM_VALD` change brightness and `RM_SPDU`/`RM_SPDD` change
 fade speed.
+
+## Sofle Pico alternate symbols keymap
+
+`personal_symbols` is a separate build target that preserves the existing
+`personal` keymap and carries over its OLED keymap display, Game of Life, Snake,
+RGB behavior, and optional Vial build mode. Its base layer remains QWERTY with
+the number row, rather than adding a numpad layer. Hold Lower for a dedicated
+symbols layer: shifted number-row symbols are grouped on the right half, with
+arrows and navigation on the left, inspired by the Oryx Ergodox layout. Hold
+Raise for a navigation layer with mirrored arrow clusters and Home/End/Page Up/
+Page Down on both halves. Hold Lower and Raise together for the existing Adjust
+layer.
+
+The alternate target generates its own OLED preview images in
+`.build/oled-preview/personal_symbols/`, separate from the `personal` previews.
+To build it with Vial, use the same Vial-QMK checkout and add
+`-e SOFLE_ENABLE_VIAL=yes`:
+
+```sh
+qmk compile -kb sofle_pico -km personal_symbols -e SOFLE_ENABLE_VIAL=yes
+```
 
 ## Sofle Pico OLED games
 

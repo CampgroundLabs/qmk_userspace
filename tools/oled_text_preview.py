@@ -249,7 +249,8 @@ def key_label(keycode, layer_index, shifted, full=False, outer=False):
         "KC_BSPC": "Bsp", "KC_TAB": "Tab", "KC_ESC": "Esc", "KC_LSFT": "Sft",
         "KC_RSFT": "Sft", "KC_UP": "Up", "KC_DOWN": "Dn", "KC_LEFT": "Lt",
         "KC_RIGHT": "Rt", "KC_INS": "Ins", "KC_PSCR": "Psc", "KC_APP": "App",
-        "KC_PGUP": "Pup", "KC_PGDN": "Pdn", "KC_DEL": "Del", "KC_CAPS": "Cap",
+        "KC_PGUP": "Pup", "KC_PGDN": "Pdn", "KC_HOME": "Hom", "KC_END": "End",
+        "KC_DEL": "Del", "KC_CAPS": "Cap", "KC_RGHT": "Rt",
         "QK_BOOT": "Bot", "CG_TOGG": "Cap", "RM_TOGG": "Rgb", "RM_VALU": "V+",
         "RM_VALD": "V-", "RM_SPDU": "S+", "RM_SPDD": "S-", "RM_NEXT": "Nxt",
         "RM_PREV": "Prv", "KC_VOLD": "V-", "KC_VOLU": "V+", "KC_MUTE": "Mut",
@@ -258,6 +259,7 @@ def key_label(keycode, layer_index, shifted, full=False, outer=False):
         "KC_PERC": "%", "KC_CIRC": "^", "KC_AMPR": "&", "KC_ASTR": "*",
         "KC_LPRN": "(", "KC_RPRN": ")", "KC_PIPE": "|", "KC_PLUS": "+",
         "KC_LCBR": "{", "KC_RCBR": "}", "KC_COLN": ":",
+        "KC_TILD": "~", "KC_UNDS": "_",
         "KC_GRV": "~" if shifted else "`", "KC_MINS": "_" if shifted else "-",
         "KC_EQL": "+" if shifted else "=", "KC_LBRC": "{" if shifted else "[",
         "KC_RBRC": "}" if shifted else "]", "KC_BSLS": "|" if shifted else "\\",
@@ -282,12 +284,12 @@ def key_label(keycode, layer_index, shifted, full=False, outer=False):
 
 
 def effective_keycode(layers, layer_name, row, col):
-    layer_order = list(LAYERS)
-    try:
-        start = layer_order.index(layer_name)
-    except ValueError:
-        start = 0
-    for candidate in reversed(layer_order[: start + 1]):
+    fallback_order = {
+        "LOWER": ("LOWER", "QWERTY"),
+        "RAISE": ("RAISE", "QWERTY"),
+        "ADJUST": ("ADJUST", "RAISE", "LOWER", "QWERTY"),
+    }.get(layer_name, (layer_name,))
+    for candidate in fallback_order:
         if candidate not in layers:
             continue
         code = layers[candidate][row][col]
