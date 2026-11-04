@@ -78,10 +78,11 @@ The previewer also accepts `--text-file` for iterative layout work. It uses
 wraps text the way QMK does.
 
 Games are drawn on the USB master half's OLED. The keymap screen is drawn
-independently on both halves. It shows the keymap compiled into firmware and
-does not reflect later edits saved dynamically in Vial. The OLED is rotated
-vertically on Sofle Pico, so the game board is laid out in portrait orientation.
-Set `SOFLE_OLED_GAMES=no` or `SOFLE_OLED_KEYMAP=no` to exclude either feature.
+independently on both halves and shows active key assignments, including
+dynamic assignments in a Vial-enabled build. The generated PNG previews show
+the compiled source map, not later Vial edits. The OLED is rotated vertically
+on Sofle Pico, so the game board is laid out in portrait orientation. Set
+`SOFLE_OLED_GAMES=no` or `SOFLE_OLED_KEYMAP=no` to exclude either feature.
 
 The implementations use Conway's neighbor-counting rules and a bounded,
 grid-based Snake game. The Game of Life was reviewed against the
@@ -112,3 +113,5 @@ secure unlock combo, and encoder support for this build only. Its Vial
 keyboard definition is in `keyboards/sofle_pico/keymaps/personal/vial.json`.
 The command above includes the OLED games by default; pass
 `-e SOFLE_OLED_GAMES=no` for a Vial build without them.
+For setup, editing, backups, and how Vial's saved map relates to the compiled
+default, see the [Sofle Pico Vial guide](keyboards/sofle_pico/keymaps/personal/README.md).
