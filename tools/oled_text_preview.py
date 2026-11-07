@@ -226,6 +226,12 @@ def parse_keymap(keymap_path, layout_header, enabled_defines):
 
 
 def key_label(keycode, layer_index, shifted, full=False, outer=False):
+    if shifted:
+        keycode = {
+            "KC_BSPC": "KC_DEL",
+            "KC_SLSH": "KC_PIPE",
+        }.get(keycode, keycode)
+
     if keycode in ("_______", "KC_TRNS"):
         return "..."
     if keycode in ("XXXXXXX", "KC_NO"):
@@ -300,7 +306,9 @@ def effective_keycode(layers, layer_name, row, col):
 
 def thumb_key_label(keycode, layer_index, shifted):
     if keycode in ("KC_LGUI", "KC_RGUI"):
-        return "Os"
+        return "Cmd"
+    if keycode in ("KC_LCTL", "KC_RCTL"):
+        return "Ct"
     if keycode == "TL_LOWR":
         return "L4" if layer_index in (1, 2) else "L1"
     if keycode == "TL_UPPR":
@@ -357,7 +365,7 @@ def render_keymap_previews(keymap_path, layout_header, output_dir, enabled_defin
                     thumb_key_label(effective_keycode(layers, layer_name, thumb_row, col), layer_index, shifted)
                     for col in second_line_cols
                 ]
-                first_line_positions = (0, 3, 7) if is_left else (0, 4, 8)
+                first_line_positions = (0, 4, 7)
                 lines.extend((
                     "",
                     place_labels(first_line_labels, first_line_positions),

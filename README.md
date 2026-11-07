@@ -51,14 +51,16 @@ start Snake, or exit the current game:
   the outer column at the outside edge. Each matrix row has its own line; the
   outer key has a fixed three-character slot so the letter/digit columns line
   up across rows. There is a blank row below the title and above the thumb row.
-  The thumb keys follow their physical stagger: `Os`, `Ctl`, and `Ent` on the
+  The thumb keys follow their physical stagger: `Cmd`, `Ct`, and `Ent` on the
   first line, with `Alt` and `L1` between them on the second. The other half
   mirrors this arrangement. Special keys use mixed-case labels such
   as `Esc`, `Tab`, `Al`, `Ct`, `Sft`, and `Bsp`. The title shows `Layer 0`
   through `Layer 3`. Thumb layer keys show `L1`/`L2` on the base and Adjust
   layers, and both show `L4` on Lower or Raise. While Shift is held, letters
   display uppercase and shifted punctuation is shown (for example `1` becomes
-  `!`). Transparent keys show the inherited key from a lower layer.
+  `!`). The configured Shift overrides are shown too: Backspace becomes `Del`
+  and `/` becomes `|`. Transparent keys show the inherited key from a lower
+  layer.
 
 The build also generates previews of each OLED's compiled keymap automatically
 whenever `SOFLE_OLED_KEYMAP=yes` (the default). The 16 PNGs are written to
@@ -70,7 +72,7 @@ dimensions, so they can be opened in an image viewer before flashing.
 To preview custom OLED text without flashing:
 
 ```sh
-python3 tools/oled_text_preview.py --text 'L Layer 0\n\n`   12345\nEsc qwert\nTab asdfg\nSft zxcvb\n\nOs Ctl Ent\n  Alt L1' --output /tmp/sofle-oled.png
+python3 tools/oled_text_preview.py --text 'L Layer 0\n\n`   12345\nEsc qwert\nTab asdfg\nSft zxcvb\n\nCmd Ct Spc\n  Alt L1' --output /tmp/sofle-oled.png
 ```
 
 The previewer also accepts `--text-file` for iterative layout work. It uses

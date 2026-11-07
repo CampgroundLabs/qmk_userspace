@@ -24,6 +24,12 @@ static void sofle_oled_keymap_write_outer_label(uint16_t keycode, bool shifted) 
         case KC_DEL:
             memcpy(label, "Del", 3);
             break;
+        case KC_SLSH:
+            label[1] = '/';
+            break;
+        case KC_PIPE:
+            label[1] = '|';
+            break;
         case KC_LSFT:
         case KC_RSFT:
             memcpy(label, "Sft", 3);
@@ -462,7 +468,7 @@ static void sofle_oled_keymap_write_thumb_label(uint16_t keycode, uint8_t layer)
     switch (keycode) {
         case KC_LGUI:
         case KC_RGUI:
-            oled_write("Os", false);
+            oled_write("Cmd", false);
             break;
         case KC_LALT:
         case KC_RALT:
@@ -470,7 +476,7 @@ static void sofle_oled_keymap_write_thumb_label(uint16_t keycode, uint8_t layer)
             break;
         case KC_LCTL:
         case KC_RCTL:
-            oled_write("Ctl", false);
+            oled_write("Ct", false);
             break;
         case KC_ENT:
             oled_write("Ent", false);
@@ -499,9 +505,24 @@ static uint16_t sofle_oled_keymap_keycode(uint8_t row, uint8_t col) {
     return keymap_key_to_keycode(effective_layer, key);
 }
 
+static uint16_t sofle_oled_keymap_display_keycode(uint16_t keycode, bool shifted) {
+    if (!shifted) {
+        return keycode;
+    }
+
+    switch (keycode) {
+        case KC_BSPC:
+            return KC_DEL;
+        case KC_SLSH:
+            return KC_PIPE;
+        default:
+            return keycode;
+    }
+}
+
 static void sofle_oled_keymap_render_thumb_row(uint8_t row_offset, uint8_t row, bool is_left, uint8_t layer, uint8_t line) {
-    static const uint8_t left_label_positions[] = {0, 3, 7};
-    static const uint8_t right_label_positions[] = {0, 4, 8};
+    static const uint8_t left_label_positions[] = {0, 4, 7};
+    static const uint8_t right_label_positions[] = {0, 4, 7};
     static const uint8_t staggered_positions[] = {2, 6};
 
     for (uint8_t index = 0; index < 3; index++) {
@@ -542,22 +563,27 @@ static void sofle_oled_keymap_render(void) {
         keypos_t key = {.row = row_offset + row, .col = 0};
         if (is_left) {
             uint8_t effective_layer = layer_switch_get_layer(key);
-            sofle_oled_keymap_write_outer_label(keymap_key_to_keycode(effective_layer, key), shifted);
+            uint16_t keycode = keymap_key_to_keycode(effective_layer, key);
+            sofle_oled_keymap_write_outer_label(sofle_oled_keymap_display_keycode(keycode, shifted), shifted);
             oled_write_char(' ', false);
             for (uint8_t col = 1; col < MATRIX_COLS; col++) {
                 key.col = col;
                 effective_layer = layer_switch_get_layer(key);
-                sofle_oled_keymap_write_label(keymap_key_to_keycode(effective_layer, key), false, false, layer, shifted);
+                keycode = keymap_key_to_keycode(effective_layer, key);
+                sofle_oled_keymap_write_label(sofle_oled_keymap_display_keycode(keycode, shifted), false, false, layer, shifted);
             }
         } else {
             for (uint8_t col = MATRIX_COLS - 1; col > 0; col--) {
                 key.col = col;
                 uint8_t effective_layer = layer_switch_get_layer(key);
-                sofle_oled_keymap_write_label(keymap_key_to_keycode(effective_layer, key), false, false, layer, shifted);
+                uint16_t keycode = keymap_key_to_keycode(effective_layer, key);
+                sofle_oled_keymap_write_label(sofle_oled_keymap_display_keycode(keycode, shifted), false, false, layer, shifted);
             }
             oled_write_char(' ', false);
+            key.col = 0;
             uint8_t effective_layer = layer_switch_get_layer(key);
-            sofle_oled_keymap_write_outer_label(keymap_key_to_keycode(effective_layer, key), shifted);
+            uint16_t keycode = keymap_key_to_keycode(effective_layer, key);
+            sofle_oled_keymap_write_outer_label(sofle_oled_keymap_display_keycode(keycode, shifted), shifted);
         }
     }
 }
